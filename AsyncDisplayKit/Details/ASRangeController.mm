@@ -56,6 +56,11 @@
   ASDisplayNodeAssert(node, @"Cannot move a nil node to a view");
   ASDisplayNodeAssert(view, @"Cannot move a node to a non-existent view");
 
+  // force any nodes that are about to come into view to have display enabled
+  if (node.displaySuspended) {
+    [node recursivelySetDisplaySuspended:NO];
+  }
+
   [view addSubview:node.view];
 }
 
@@ -215,8 +220,6 @@
 
 - (void)configureContentView:(UIView *)contentView forCellNode:(ASCellNode *)cellNode
 {
-  [cellNode recursivelySetDisplaySuspended:NO];
-
   if (cellNode.view.superview == contentView) {
     // this content view is already correctly configured
     return;

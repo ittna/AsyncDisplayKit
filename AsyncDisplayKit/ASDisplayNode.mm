@@ -1348,6 +1348,14 @@ static NSInteger incrementIfFound(NSInteger i) {
   // subclass override
 }
 
+- (void)recursivelyFetchRemoteData
+{
+  for (ASDisplayNode *subnode in self.subnodes) {
+    [subnode recursivelyFetchRemoteData];
+  }
+  [self fetchRemoteData];
+}
+
 - (void)clearRemoteData
 {
   // subclass override
@@ -1416,22 +1424,22 @@ static NSInteger incrementIfFound(NSInteger i) {
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    // subclass hook
+  // subclass hook
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    // subclass hook
+  // subclass hook
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    // subclass hook
+  // subclass hook
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    // subclass hook
+  // subclass hook
 }
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer

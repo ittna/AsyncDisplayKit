@@ -28,7 +28,7 @@
 @interface ASCollectionView : UICollectionView
 
 @property (nonatomic, weak) id<ASCollectionViewDataSource> asyncDataSource;
-@property (nonatomic, weak) id<ASCollectionViewDelegate> asyncDelegate;
+@property (nonatomic, weak) id<ASCollectionViewDelegate> asyncDelegate;       // must not be nil
 
 /**
  * Tuning parameters for a range.
@@ -73,6 +73,15 @@
 /**
  * Reload everything from scratch, destroying the working range and all cached nodes.
  *
+ * @param completion block to run on completion of asynchronous loading or nil. If supplied, the block is run on
+ * the main thread.
+ * @warning This method is substantially more expensive than UICollectionView's version.
+ */
+- (void)reloadDataWithCompletion:(void (^)())completion;
+
+/**
+ * Reload everything from scratch, destroying the working range and all cached nodes.
+ *
  * @warning This method is substantially more expensive than UICollectionView's version.
  */
 - (void)reloadData;
@@ -80,7 +89,7 @@
 /**
  * Section updating.
  *
- * All operations are asynchronous and thread safe. You can call it from background thread (it is recommendated) and the UI table
+ * All operations are asynchronous and thread safe. You can call it from background thread (it is recommendated) and the UI collection
  * view will be updated asynchronously. The asyncDataSource must be updated to reflect the changes before these methods are called.
  */
 - (void)insertSections:(NSIndexSet *)sections;
@@ -91,7 +100,7 @@
 /**
  * Items updating.
  *
- * All operations are asynchronous and thread safe. You can call it from background thread (it is recommendated) and the UI table
+ * All operations are asynchronous and thread safe. You can call it from background thread (it is recommendated) and the UI collection
  * view will be updated asynchronously. The asyncDataSource must be updated to reflect the changes before these methods are called.
  */
 - (void)insertItemsAtIndexPaths:(NSArray *)indexPaths;
@@ -157,8 +166,10 @@
  */
 - (ASCellNode *)collectionView:(ASCollectionView *)collectionView nodeForItemAtIndexPath:(NSIndexPath *)indexPath;
 
+@optional
+
 /**
- * Indicator to lock the data source for data fetching in asyn mode.
+ * Indicator to lock the data source for data fetching in async mode.
  * We should not update the data source until the data source has been unlocked. Otherwise, it will incur data inconsistence or exception
  * due to the data access in async mode.
  *
@@ -167,7 +178,7 @@
 - (void)collectionViewLockDataSource:(ASCollectionView *)collectionView;
 
 /**
- * Indicator to unlock the data source for data fetching in asyn mode.
+ * Indicator to unlock the data source for data fetching in async mode.
  * We should not update the data source until the data source has been unlocked. Otherwise, it will incur data inconsistence or exception
  * due to the data access in async mode.
  *
@@ -192,7 +203,7 @@
  * Receive a message that the collectionView is near the end of its data set and more data should be fetched if 
  * necessary.
  *
- * @param tableView The sender.
+ * @param collectionView The sender.
  * @param context A context object that must be notified when the batch fetch is completed.
  *
  * @discussion You must eventually call -completeBatchFetching: with an argument of YES in order to receive future

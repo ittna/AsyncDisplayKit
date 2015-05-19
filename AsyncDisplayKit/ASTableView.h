@@ -28,7 +28,7 @@
 @interface ASTableView : UITableView
 
 @property (nonatomic, weak) id<ASTableViewDataSource> asyncDataSource;
-@property (nonatomic, weak) id<ASTableViewDelegate> asyncDelegate;
+@property (nonatomic, weak) id<ASTableViewDelegate> asyncDelegate;      // must not be nil
 
 /**
  * Tuning parameters for a range.
@@ -69,6 +69,15 @@
  * Defaults to one screenful.
  */
 @property (nonatomic, assign) CGFloat leadingScreensForBatching;
+
+/**
+ * Reload everything from scratch, destroying the working range and all cached nodes.
+ *
+ * @param completion block to run on completion of asynchronous loading or nil. If supplied, the block is run on 
+ * the main thread.
+ * @warning This method is substantially more expensive than UITableView's version.
+ */
+-(void)reloadDataWithCompletion:(void (^)())completion;
 
 /**
  * Reload everything from scratch, destroying the working range and all cached nodes.
@@ -145,8 +154,10 @@
  */
 - (ASCellNode *)tableView:(ASTableView *)tableView nodeForRowAtIndexPath:(NSIndexPath *)indexPath;
 
+@optional
+
 /**
- * Indicator to lock the data source for data fetching in asyn mode.
+ * Indicator to lock the data source for data fetching in async mode.
  * We should not update the data source until the data source has been unlocked. Otherwise, it will incur data inconsistence or exception
  * due to the data access in async mode.
  *

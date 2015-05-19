@@ -87,6 +87,8 @@ ASDISPLAYNODE_INLINE CGFloat ceilPixelValue(CGFloat f)
   CGFloat _shadowOpacity;
   CGFloat _shadowRadius;
 
+  NSArray *_exclusionPaths;
+
   NSAttributedString *_composedTruncationString;
 
   NSString *_highlightedLinkAttributeName;
@@ -144,6 +146,18 @@ ASDISPLAYNODE_INLINE CGFloat ceilPixelValue(CGFloat f)
   }
 
   return self;
+}
+
+- (instancetype)initWithLayerBlock:(ASDisplayNodeLayerBlock)viewBlock
+{
+  ASDisplayNodeAssertNotSupported();
+  return nil;
+}
+
+- (instancetype)initWithViewBlock:(ASDisplayNodeViewBlock)viewBlock
+{
+  ASDisplayNodeAssertNotSupported();
+  return nil;
 }
 
 - (void)dealloc
@@ -228,9 +242,21 @@ ASDISPLAYNODE_INLINE CGFloat ceilPixelValue(CGFloat f)
   // If we are view-backed, support gesture interaction.
   if (!self.isLayerBacked) {
     _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(_handleLongPress:)];
-    _longPressGestureRecognizer.cancelsTouchesInView = NO;
+    _longPressGestureRecognizer.cancelsTouchesInView = self.longPressCancelsTouches;
     _longPressGestureRecognizer.delegate = self;
     [self.view addGestureRecognizer:_longPressGestureRecognizer];
+  }
+}
+
+- (void)setFrame:(CGRect)frame
+{
+  [super setFrame:frame];
+  if (!CGSizeEqualToSize(frame.size, _constrainedSize)) {
+    // Our bounds have changed to a size that is not identical to our constraining size,
+    // so our previous layout information is invalid, and TextKit may draw at the
+    // incorrect origin.
+    _constrainedSize = CGSizeMake(-INFINITY, -INFINITY);
+    [self _invalidateRenderer];
   }
 }
 
@@ -257,6 +283,7 @@ ASDISPLAYNODE_INLINE CGFloat ceilPixelValue(CGFloat f)
                                                         truncationString:_composedTruncationString
                                                           truncationMode:_truncationMode
                                                         maximumLineCount:_maximumLineCount
+                                                          exclusionPaths:_exclusionPaths
                                                          constrainedSize:constrainedSize];
   }
   return _renderer;
@@ -323,6 +350,23 @@ ASDISPLAYNODE_INLINE CGFloat ceilPixelValue(CGFloat f)
   } else {
     self.isAccessibilityElement = YES;
   }
+}
+
+#pragma mark - Text Layout
+
+- (void)setExclusionPaths:(NSArray *)exclusionPaths
+{
+  if ((_exclusionPaths == nil && exclusionPaths != nil) || (![_exclusionPaths  isEqualToArray:exclusionPaths])) {
+    _exclusionPaths = exclusionPaths;
+    [self _invalidateRenderer];
+    [self invalidateCalculatedSize];
+    [self setNeedsDisplay];
+  }
+}
+
+- (NSArray *)exclusionPaths
+{
+  return _exclusionPaths;
 }
 
 #pragma mark - Drawing
@@ -711,7 +755,7 @@ ASDISPLAYNODE_INLINE CGFloat ceilPixelValue(CGFloat f)
   // fill each line with the placeholder color
   for (NSValue *rectValue in lineRects) {
     CGRect lineRect = [rectValue CGRectValue];
-    CGRect fillBounds = UIEdgeInsetsInsetRect(lineRect, self.placeholderInsets);
+    CGRect fillBounds = CGRectIntegral(UIEdgeInsetsInsetRect(lineRect, self.placeholderInsets));
 
     if (fillBounds.size.width > 0.0 && fillBounds.size.height > 0.0) {
       UIRectFill(fillBounds);
