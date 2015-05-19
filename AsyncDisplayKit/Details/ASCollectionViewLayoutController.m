@@ -37,6 +37,7 @@ typedef struct TwoDimensionalBufferScreenfuls TwoDimensionalBufferScreenfuls;
 // TODO: Determine object (ARC) ownership for layout, should it be strong?
 @implementation ASCollectionViewLayoutController
 
+@dynamic layoutDirection;
 
 - (instancetype)initWithLayout:(UICollectionViewLayout *)layout {
   if (!(self = [super initWithScrollOption:ASFlowLayoutDirectionVertical])) {
