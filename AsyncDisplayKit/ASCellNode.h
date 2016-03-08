@@ -76,6 +76,8 @@ typedef enum : NSUInteger {
  */
 @property (nonatomic, assign) BOOL highlighted;
 
+@property (nonatomic, copy) UITraitCollection *traitCollection;
+
 /*
  * ASCellNode must forward touch events in order for UITableView and UICollectionView tap handling to work. Overriding
  * these methods (e.g. for highlighting) requires the super method be called.
@@ -109,6 +111,8 @@ typedef enum : NSUInteger {
 - (instancetype)initWithViewControllerBlock:(ASDisplayNodeViewControllerBlock)viewControllerBlock didLoadBlock:(nullable ASDisplayNodeDidLoadBlock)didLoadBlock;
 
 - (void)cellNodeVisibilityEvent:(ASCellNodeVisibilityEvent)event inScrollView:(UIScrollView *)scrollView withCellFrame:(CGRect)cellFrame;
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection;
 
 @end
 

@@ -188,6 +188,11 @@
     // To be overriden by subclasses
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+  // To be overriden by subclasses
+}
+
 @end
 
 

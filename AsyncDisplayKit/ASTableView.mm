@@ -63,6 +63,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
   _node = node;
   node.selected = self.selected;
   node.highlighted = self.highlighted;
+  node.traitCollection = self.traitCollection;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -75,6 +76,13 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 {
   [super setHighlighted:highlighted animated:animated];
   _node.highlighted = highlighted;
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+  [super traitCollectionDidChange:previousTraitCollection];
+  _node.traitCollection = self.traitCollection;
+  [_node traitCollectionDidChange:previousTraitCollection];
 }
 
 @end
